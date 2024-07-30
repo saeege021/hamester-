@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click</title>
+    <link rel="stylesheet" href="../static/styl.css">
+    <style>
+        .circle-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 50px auto;
+            background-size: cover;
+        }
+
+        .number {
+            position: absolute;
+            transition: opacity 1s, transform 1s;
+            pointer-events: none;
+            font-size: 17px;
+        }
+    </style>
+</head>
+<body>
+<div class="all">
+    <header>
+        <div class="head">
+            <button class="but-head">cancel</button>
+            <div>
+                <h3>RabbitTap</h3>
+                <h6 class="bot">bot</h6>
+            </div>
+            <a href="#"><img src="../image/icons8-more-48.png" alt="" style="width: 30px;"></a>
+        </div>
+        <div class="acc">
+            <img src="../image/icons8-coin-48%20(1).png" alt="">
+            <p> user_name </p>
+        </div>
+    </header>
+    <main>
+        <div class="main-coin">
+            <img src="../image/icons8-coin-48%20(1).png" alt="" style="width: 40px;">
+            <p class="min100" id="coins">1,000,000</p>
+        </div>
+        <div class="rang">
+            <input type="range" class="scorel" min="0" max="5000" value="0" id="score-slider">
+        </div>
+        <div class="bani">
+            <div class="pasi">
+                <img src="../image/icons8-coin-80.png" alt="" style="width: 25px;">
+                <p class="sta">STARTER</p>
+            </div>
+            <div class="pasi-2">
+                <img src="../image/icons8-coin-48.png" alt="" style="width: 30px;">
+                <p class="pro">PRO</p>
+                <div class="number" style="color: black;"></div>
+            </div>
+        </div>
+        <div class="image-butt">
+            <button class="but-org" style="border: none;" id="click-button"><img
+                    src="../image/original-4a829f029ce0fd5670bf24e898167e79_preview_rev_2.png"
+                    alt="" class="imm">
+            </button>
+        </div>
+        <div class="power">
+            <img src="../image/icons8-power-50.png" alt="" style="height: 15px;">
+            <p id="energy"></p>
+        </div>
+        <div class="tabs">
+            <div class="tatle">
+                <img src="../image/icons8-deposit-48.png" alt="" class="img-box">
+                <a href="../templates/index.html" class="tab" id="tab-deposit">tap</a>
+            </div>
+            <div>
+                <img src="../image/icons8-golden-fever-48.png" alt="" class="img-box">
+                <a class="tab" href="../templates/mine.html" id="tab-withdraw">mine</a>
+            </div>
+            <div>
+                <img src="../image/icons8-wallet-48 (1).png" alt="" class="img-box"
+                     style="margin-left: 7px;">
+                <a class="tab" href="../templates/walet.html" id="tab-wallet">Wallet</a>
+            </div>
+            <div>
+                <img src="../image/icons8-about-48.png" alt="" class="img-box">
+                <div class="tab" id="tab-about">friend</div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+    document.getElementById('click-button').addEventListener('click', function (event) {
+        const circle = event.currentTarget;
+        const rect = circle.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const radius = rect.width / 2;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        const distance = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+
+        if (distance <= radius) {
+            let numberElement = document.createElement('div');
+            numberElement.className = 'number';
+            numberElement.textContent = '+1';
+            circle.appendChild(numberElement);
+
+            numberElement.style.left = x + 'px';
+            numberElement.style.top = y + 'px';
+
+            setTimeout(function () {
+                numberElement.style.opacity = 0;
+                numberElement.style.transform = 'translateY(-10px)';
+            }, 100);
+
+            setTimeout(function () {
+                circle.removeChild(numberElement);
+            }, 1100);
+        }
+    });
+    const clickButton = document.getElementById('click-button');
+    const coinsElement = document.getElementById('coins');
+    const energyElement = document.getElementById('energy');
+    const scoreSlider = document.getElementById('score-slider');
+
+    let coins = parseInt(localStorage.getItem('coins') || '0', 10);
+    let energy = parseInt(localStorage.getItem('energy') || '3900', 10);
+    let score = parseInt(localStorage.getItem('score') || '0', 10);
+    let league = parseInt(localStorage.getItem('league') || '1', 10);
+
+    const maxEnergy = 3900;
+    const rechargeDuration = 5 * 50; // 5 دقیقه بر حسب ثانیه
+    const energyRechargeRate = maxEnergy / rechargeDuration; // مقدار انرژی که در هر ثانیه پر می‌شود
+
+    coinsElement.textContent = coins.toLocaleString();
+    energyElement.textContent = `${Math.floor(energy)}/${maxEnergy}`;
+    scoreSlider.value = score;
+    scoreSlider.max = league * 5000;
+
+    clickButton.addEventListener('click', () => {
+        if (energy > 0) {
+            coins++;
+            energy--;
+            score += 1; // مقدار افزایش امتیاز به ازای هر کلیک
+
+            if (score >= league * 5000) {
+                league++;
+                score = 0;
+                scoreSlider.max = league * 5000;
+            }
+
+            coinsElement.textContent = coins.toLocaleString();
+            energyElement.textContent = `${Math.floor(energy)}/${maxEnergy}`;
+            scoreSlider.value = score;
+
+            localStorage.setItem('coins', coins);
+            localStorage.setItem('energy', Math.floor(energy));
+            localStorage.setItem('score', score);
+            localStorage.setItem('league', league);
+        }
+    });
+
+    setInterval(() => {
+        if (energy < maxEnergy) {
+            energy += energyRechargeRate;
+            if (energy > maxEnergy) {
+                energy = maxEnergy;
+            }
+            energyElement.textContent = `${Math.floor(energy)}/${maxEnergy}`;
+            localStorage.setItem('energy', Math.floor(energy));
+        }
+    }, 10000); // بروزرسانی هر ۱ ثانیه
+</script>
+</body>
+</html>
+{#<script>#}
+{#    const clickButton = document.getElementById('click-button');#}
+{#    const coinsElement = document.getElementById('coins');#}
+{#    const energyElement = document.getElementById('energy');#}
+{##}
+{#    let coins = parseInt(localStorage.getItem('coins') || '0', 10);#}
+{#    let energy = parseInt(localStorage.getItem('energy') || '3900', 10);#}
+{#    const maxEnergy = 3900;#}
+{#    const rechargeDuration = 5 * 30; // 5 دقیقه بر حسب ثانیه#}
+{#    const energyRechargeRate = maxEnergy / rechargeDuration; // مقدار انرژی که در هر ثانیه پر می‌شود#}
+{##}
+{#    coinsElement.textContent = coins.toLocaleString();#}
+{#    energyElement.textContent = `${Math.floor(energy)}/${maxEnergy}`;#}
+{##}
+{#    clickButton.addEventListener('click', () => {#}
+{#        if (energy > 0) {#}
+{#            coins++;#}
+{#            energy--;#}
+{##}
+{#            coinsElement.textContent = coins.toLocaleString();#}
+{#            energyElement.textContent = `${Math.floor(energy)}/${maxEnergy}`;#}
+{##}
+{#            localStorage.setItem('coins', coins);#}
+{#            localStorage.setItem('energy', Math.floor(energy));#}
+{#        }#}
+{#    });#}
+{##}
+{#    setInterval(() => {#}
+{#        if (energy < maxEnergy) {#}
+{#            energy += energyRechargeRate;#}
+{#            if (energy > maxEnergy) {#}
+{#                energy = maxEnergy;#}
+{#            }#}
+{#            energyElement.textContent = `${Math.floor(energy)}/${maxEnergy}`;#}
+{#            localStorage.setItem('energy', Math.floor(energy));#}
+{#        }#}
+{#    }, 10000); // بروزرسانی هر ۱ ثانیه#}
+{#</script>#}
+
+
+
+{#<script>#}
+{#    const clickButton = document.getElementById('click-button');#}
+{#    const coinsElement = document.getElementById('coins');#}
+{#    const energyElement = document.getElementById('energy');#}
+{##}
+{#    let coins = parseInt(localStorage.getItem('coins') || '0', 10);#}
+{#    let energy = parseInt(localStorage.getItem('energy') || '3900', 10);#}
+{#    const maxEnergy = 3900;#}
+{#    const energyRechargeRate = maxEnergy / (4 * 50); // مقدار انرژی که در هر ثانیه پر می‌شود#}
+{##}
+{#    coinsElement.textContent = coins.toLocaleString();#}
+{#    energyElement.textContent = `${energy}/${maxEnergy}`;#}
+{##}
+{#    clickButton.addEventListener('click', () => {#}
+{#        if (energy > 0) {#}
+{#            coins++;#}
+{#            energy--;#}
+{##}
+{#            coinsElement.textContent = coins.toLocaleString();#}
+{#            energyElement.textContent = `${energy}/${maxEnergy}`;#}
+{##}
+{#            localStorage.setItem('coins', coins);#}
+{#            localStorage.setItem('energy', energy);#}
+{#        }#}
+{#    });#}
+{##}
+{#    setInterval(() => {#}
+{#        if (energy < maxEnergy) {#}
+{#            energy += energyRechargeRate;#}
+{#            if (energy > maxEnergy) {#}
+{#                energy = maxEnergy;#}
+{#            }#}
+{#            energyElement.textContent = `${Math.floor(energy)}/${maxEnergy}`;#}
+{#            localStorage.setItem('energy', Math.floor(energy));#}
+{#        }#}
+{#    }, 1000); // بروزرسانی هر ۱ ثانیه#}
+{#</script>#}
+
+#============================================
+
+// // {#اسکریپت های قدیمی به جای کار اسکریپت بالا از اینا استفاده شود#}
+// {#document.getElementById('tab-deposit').onclick = () => window.location.href = '/index.html';#}
+// {#document.getElementById('tab-withdraw').onclick = () => window.location.href = '/mine.html';#}
+// {#document.getElementById('tab-wallet').onclick = () => window.location.href = '/walet.html';#}
+// {#document.getElementById('tab-about').onclick = () => window.location.href = '/friend';#}
+// {#document.querySelectorAll('.tab').forEach(tab => {#}
+// {#    tab.addEventListener('click', () => {#}
+// {#        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));#}
+// {#        tab.classList.add('active');#}
+// {#    });#}
+
+// {#let count = localStorage.getItem('clickCount') ? parseInt(localStorage.getItem('clickCount')) : 0;#}
+// {#document.getElementById('top-text').textContent = count;#}
+// {#document.getElementById('bottom-text').textContent = `${count} coin`;#}
+// {##}
+// {#document.getElementById('clickable-image').addEventListener('click', () => {#}
+// {#    count++;#}
+// {#    document.getElementById('top-text').textContent = count;#}
+// {#    document.getElementById('bottom-text').textContent = `${count} coin`;#}
+// {#    localStorage.setItem('clickCount', count);#}
+
+// {##}
+// {#document.getElementById('claim-button').addEventListener('click', () => {#}
+// {#    alert(`You have claimed ${count} coins!`);#}
+// {#    // در اینجا می‌توانید کد ذخیره‌سازی در سمت سرور را اضافه کنید#}
